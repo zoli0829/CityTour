@@ -6,7 +6,7 @@
 
 import Foundation
 
-enum Keyword : Identifiable, CaseIterable, Codable {
+enum Keyword: Identifiable, CaseIterable, Codable {
     
     case cafe,
          gym,
@@ -38,11 +38,11 @@ enum Keyword : Identifiable, CaseIterable, Codable {
          car_repair,
          stadium
     
-    var id : Self {
+    var id: Self {
         return self
     }
     
-    var title : String {
+    var title: String {
         switch self {
         case .cafe:
             return "Coffee Shops"
@@ -105,7 +105,7 @@ enum Keyword : Identifiable, CaseIterable, Codable {
         }
     }
     
-    var apiName : String {
+    var apiName: String {
         switch self {
         case .cafe:
             return "Coffee"
