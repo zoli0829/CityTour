@@ -7,6 +7,9 @@
 import SwiftUI
 
 struct PlacesView: View {
+	
+	let apiClient = APIClient()
+	
     var body: some View {
         VStack {
             Image(systemName: "globe")
@@ -14,7 +17,9 @@ struct PlacesView: View {
                 .foregroundStyle(.tint)
             Text("Hello, world!")
         }
-        .padding()
+		.task {
+			await apiClient.getPlaces(forKeyword: "Burger", latitude: 51.81932067012039, longitude: -8.400478360360923)
+		}
     }
 }
 
