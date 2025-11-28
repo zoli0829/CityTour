@@ -1,42 +1,50 @@
-//
-//  APIClient.swift
-//  CityTour
-//
-//  Created by Zoltan Vegh on 17/11/2025.
-//
-
 import Foundation
 import CoreLocation
 
 class APIClient {
-	
-	private let baseURL = "https://places.googleapis.com/v1/places:searchNearby/json"
+
+	private let baseURL = "https://places.googleapis.com/v1/places:searchNearby"
 	private let googlePlacesKey = GooglePlacesKey.apiKey
-	
-	func getPlaces(forKeyword keyword: String, latitude: Double, longitude: Double) async {
-		guard let url = createURL(latitude: latitude, longitude: longitude, keyword: keyword) else { return }
-		
+
+	/// Search nearby places (new Places API v1)
+	func getPlaces(latitude: Double, longitude: Double, radius: Double = 500) async {
+		guard let url = URL(string: baseURL) else { return }
+
+		var request = URLRequest(url: url)
+		request.httpMethod = "POST"
+
+		// Required headers
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		request.setValue(googlePlacesKey, forHTTPHeaderField: "X-Goog-Api-Key")
+
+		// REQUIRED – without this Google returns an error
+		request.setValue("places.displayName,places.location,places.id", forHTTPHeaderField: "X-Goog-FieldMask")
+
+		// JSON body for POST
+		let body: [String: Any] = [
+			"locationRestriction": [
+				"circle": [
+					"center": [
+						"latitude": latitude,
+						"longitude": longitude
+					],
+					"radius": radius
+				]
+			]
+		]
+
+		request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
 		do {
-			let (data, _) = try await URLSession.shared.data(from: url)
-			print("Before the json")
-			guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
-			print("After the json")
-			print(json)
+			let (data, _) = try await URLSession.shared.data(for: request)
+
+			// Debug print raw JSON to verify structure
+			if let json = try? JSONSerialization.jsonObject(with: data) {
+				print("Raw JSON:", json)
+			}
+
 		} catch {
-			print(error.localizedDescription)
+			print("API error:", error.localizedDescription)
 		}
 	}
-	
-	private func createURL(latitude: Double, longitude: Double, keyword: String) -> URL? {
-		var urlComponents = URLComponents(string: baseURL)
-		var queryItems: [URLQueryItem] = [
-			URLQueryItem(name: "location", value: "\(latitude)" + "," + "\(longitude)"),
-			URLQueryItem(name: "rankby", value: "distance"),
-			URLQueryItem(name: "keyword", value: keyword),
-			URLQueryItem(name: "key", value: googlePlacesKey)
-		]
-		urlComponents?.queryItems = queryItems
-		return urlComponents?.url
-	}
-	
 }

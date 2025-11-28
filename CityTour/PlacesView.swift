@@ -18,7 +18,7 @@ struct PlacesView: View {
             Text("Hello, world!")
         }
 		.task {
-			await apiClient.getPlaces(forKeyword: "Burger", latitude: 51.81932067012039, longitude: -8.400478360360923)
+			await apiClient.getPlaces(latitude: 51.81932067012039, longitude: -8.400478360360923)
 		}
     }
 }
